@@ -1,15 +1,31 @@
-import { useState } from 'react';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Player } from '@lottiefiles/react-lottie-player';
+import loadingAnimation from '../assets/loading_nhac.json';
+import { login } from '../services/api';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(email && password) navigate('/');
+    setErrorMsg('');
+    if (email && password) {
+      try {
+        setLoading(true);
+        await login(email, password);
+        navigate('/produtos');
+      } catch (err: any) {
+        setErrorMsg(err.message || 'Erro ao tentar fazer login.');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -20,6 +36,13 @@ export default function Login() {
           <h1 className="text-[28px] font-bold text-marrom">Bem-vindo ao Nhac</h1>
           <p className="text-cinza text-[16px] mt-2">Faça login para fazer seu pedido</p>
         </div>
+
+        {errorMsg && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-xl flex items-center mb-6 text-sm font-medium">
+            <AlertCircle size={20} className="mr-2" />
+            {errorMsg}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -57,10 +80,19 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-[#e5564f] text-white py-4 rounded-full text-[18px] font-semibold flex items-center justify-center transition-colors mt-8 shadow-sm"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-[#e5564f] disabled:opacity-50 text-white py-4 rounded-full text-[18px] font-semibold flex items-center justify-center transition-colors mt-8 shadow-sm h-[60px]"
           >
-            <LogIn size={24} className="mr-2" />
-            Entrar
+            {loading ? (
+               <div className="w-16 h-16">
+                 <Player src={loadingAnimation} loop autoplay />
+               </div>
+            ) : (
+              <>
+                <LogIn size={24} className="mr-2" />
+                Entrar
+              </>
+            )}
           </button>
         </form>
 
