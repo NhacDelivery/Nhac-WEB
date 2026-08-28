@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF6961;
+  --color-secondary: #FCDABB;
+  --color-fundo: #FFE7E5;
+  --color-marrom: #5D201C;
+  --color-cinza: #757575;
+  --font-sans: 'Roboto', sans-serif;
+}
+
+body {
+  @apply bg-fundo text-marrom font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold;
+}
