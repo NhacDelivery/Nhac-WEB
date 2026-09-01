@@ -1,6 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { MdHome, MdShoppingCart, MdStorefront, MdPersonOutline, MdExitToApp } from 'react-icons/md';
+import {
+  MdOutlineHome,
+  MdOutlineShoppingBag,
+  MdPersonOutline,
+  MdExitToApp,
+  MdArrowUpward,
+} from 'react-icons/md';
 import HomePage from './pages/Home';
 import Login from './pages/Login';
 import Products from './pages/Products';
@@ -66,46 +72,76 @@ function TopNavigation() {
   );
 }
 
-function FloatingNavigation() {
+function FloatingBottomNavigation() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const navItems = [
-    { to: '/', label: 'Home', icon: MdHome },
-    { to: '/produtos', label: 'Carrinho', icon: MdShoppingCart },
-    { to: '/produtos', label: 'N sei', icon: MdStorefront },
+    { to: '/', label: 'Home', icon: MdOutlineHome },
+    { to: '/produtos', label: 'Cardápio', icon: MdOutlineShoppingBag },
     { to: '/login', label: 'Perfil', icon: MdPersonOutline },
   ];
 
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const isCollapsed = scrollY > 150;
+
   return (
-    <aside className="fixed left-6 top-1/2 z-50 w-[88px] -translate-y-1/2 rounded-[28px] border border-[#f3d7d4] bg-white/90 p-3 shadow-[0_20px_40px_rgba(93,32,28,0.12)] backdrop-blur-sm">
-      <nav className="flex flex-col items-center gap-3">
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={`${to}-${label}`}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `group relative flex w-full items-center justify-center overflow-hidden rounded-[24px] transition-all duration-300 ease-out ${
-                isActive ? 'bg-[#ffefe9] text-[#ff6961] shadow-[0_6px_18px_rgba(255,105,97,0.18)]' : 'text-[#a0a0a0] hover:bg-[#fff8f6] hover:text-[#5d201c]'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <div className="relative flex w-full items-center justify-center gap-2 px-2 py-3">
-                <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-[16px] transition-all duration-300 ease-out">
-                  <Icon size={26} className={isActive ? 'text-[#ff6961]' : 'text-current'} />
-                </div>
-                <span
-                  className={`relative z-10 overflow-hidden whitespace-nowrap text-[11px] font-semibold transition-all duration-300 ease-out ${
-                    isActive ? 'max-w-[68px] opacity-100 text-[#ff6961]' : 'max-w-0 opacity-0'
-                  }`}
-                >
-                  {label}
-                </span>
-              </div>
-            )}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+    <>
+      <div className="fixed left-5 top-1/2 z-40 -translate-y-1/2">
+        <div className="rounded-[32px] border border-[#f3d7d4] bg-white/90 p-2 shadow-[0_18px_38px_rgba(93,32,28,0.12)] backdrop-blur-sm">
+          <nav className="flex flex-col items-start gap-2">
+            {navItems.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={`${to}-${label}`}
+                to={to}
+                end={to === '/'}
+                className={({ isActive }) =>
+                  `group relative flex h-[60px] items-center overflow-hidden rounded-[24px] transition-all duration-400 ease-out ${
+                    isActive
+                      ? 'w-[150px] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                      : 'w-[56px] px-2 text-[#a0a0a0] hover:text-[#5d201c]'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <div className="relative flex items-center transition-all duration-400 ease-out">
+                    <Icon size={27} className={isActive ? 'text-[#ff6961]' : 'text-current'} />
+
+                    <span
+                      className={`inline-block overflow-hidden whitespace-nowrap text-[15px] font-semibold transition-all duration-400 ease-out ${
+                        isActive
+                          ? 'ml-3 max-w-[90px] opacity-100 text-[#ff6961]'
+                          : 'ml-0 max-w-[0px] opacity-0 text-transparent'
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      <button
+        onClick={handleScrollTop}
+        className={`fixed bottom-[118px] right-6 z-50 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#ff6961] text-white shadow-[0_10px_24px_rgba(255,105,97,0.32)] transition-all duration-300 ease-out ${
+          isCollapsed ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
+        }`}
+      >
+        <MdArrowUpward size={24} />
+      </button>
+    </>
   );
 }
 
@@ -114,10 +150,11 @@ export default function App() {
     <Router>
       <div className="min-h-screen bg-fundo text-marrom">
         <TopNavigation />
-        <FloatingNavigation />
-        <main className="mx-auto max-w-7xl px-6 pb-8 pt-6 pl-28">
+        <FloatingBottomNavigation />
+        <main className="mx-auto max-w-7xl px-6 pb-28 pt-6">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Products />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/produtos" element={<Products />} />
           </Routes>
