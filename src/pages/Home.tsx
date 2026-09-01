@@ -1,7 +1,77 @@
-import { ArrowRight, Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { ArrowRight, MapPin, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Home() {
+  const navigate = useNavigate();
+  const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
+  const [endereco, setEndereco] = useState<string>('');
+  const apiKey =
+    import.meta.env.VITE_GOOGLE_PLACES_API_KEY ||
+    import.meta.env.GOOGLE_PLACES_API_KEY ||
+    import.meta.env.VITE_GOOGLE_API_KEY ||
+    import.meta.env.GOOGLE_API_KEY;
+
+  const pegarLocalizacao = async () => {
+    if (!navigator.geolocation) {
+      alert('Seu navegador não suporta geolocalização.');
+      return;
+    }
+
+    if (!apiKey) {
+      alert('A chave da API do Google não foi configurada. Verifique o arquivo .env na raiz do projeto.');
+      return;
+    }
+
+    localStorage.removeItem('endereco_entrega');
+    setEndereco('');
+    setLoadingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        localStorage.removeItem('endereco_entrega');
+
+        try {
+          const res = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}&language=pt-BR&result_type=street_address|route|intersection|premise`
+          );
+          const data = await res.json();
+
+          if (data.results && data.results.length > 0) {
+            const resultados = data.results
+              .filter((result: any) =>
+                result.formatted_address &&
+                (result.types.includes('street_address') ||
+                  result.types.includes('route') ||
+                  result.types.includes('intersection') ||
+                  result.types.includes('premise'))
+              )
+              .sort((a: any, b: any) => (b.address_components?.length || 0) - (a.address_components?.length || 0));
+
+            const resultadoExato = resultados[0] || data.results[0];
+            const enderecoFormatado = resultadoExato.formatted_address;
+
+            setEndereco(enderecoFormatado);
+            localStorage.setItem('endereco_entrega', enderecoFormatado);
+            navigate('/produtos');
+          } else {
+            alert('Não foi possível identificar o endereço. Verifique a chave do Google Places e as permissões da API.');
+          }
+        } catch {
+          alert('Erro ao buscar o endereço. Tente novamente.');
+        } finally {
+          setLoadingLocation(false);
+        }
+      },
+      () => {
+        setLoadingLocation(false);
+        alert('Permissão de localização negada. Por favor, habilite nas configurações do navegador.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-8">
       {/* Hero Section */}
@@ -12,14 +82,23 @@ export default function Home() {
           </h1>
           <p className="text-[18px] text-marrom/80 mb-8">Descubra os melhores restaurantes e ofertas perto de você.</p>
           
-          <div className="relative w-full max-w-md">
-            <input 
-              type="text" 
-              placeholder="Buscar restaurantes ou itens..." 
-              className="w-full py-4 pl-12 pr-4 rounded-full bg-white border border-transparent focus:outline-none focus:ring-2 focus:ring-primary shadow-sm text-marrom"
-            />
-            <Search className="absolute left-4 top-4 text-cinza" size={24} />
-          </div>
+          <button
+            onClick={pegarLocalizacao}
+            disabled={loadingLocation}
+            className="flex items-center gap-3 bg-white text-marrom px-8 py-4 rounded-full shadow-sm hover:shadow-md transition-all font-semibold text-[18px] border border-transparent hover:border-primary/20 disabled:opacity-60"
+          >
+            {loadingLocation ? (
+              <>
+                <Loader2 size={24} className="animate-spin text-primary" />
+                Buscando localização...
+              </>
+            ) : (
+              <>
+                <MapPin size={24} className="text-primary" />
+                {endereco || 'Usar minha localização atual'}
+              </>
+            )}
+          </button>
         </div>
         <div className="hidden lg:block text-[160px]">🍔</div>
       </header>
