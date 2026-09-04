@@ -93,44 +93,61 @@ function FloatingBottomNavigation() {
   };
 
   const isCollapsed = scrollY > 150;
+  const activeIndex = navItems.findIndex(({ to }) => to === location.pathname);
 
   return (
     <>
       <div className="fixed left-5 top-1/2 z-40 -translate-y-1/2">
-        <div className="rounded-[32px] border border-[#f3d7d4] bg-white/90 p-2 shadow-[0_18px_38px_rgba(93,32,28,0.12)] backdrop-blur-sm">
-          <nav className="flex flex-col items-start gap-2">
-            {navItems.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={`${to}-${label}`}
-                to={to}
-                end={to === '/'}
-                className={({ isActive }) =>
-                  `group relative flex h-[60px] items-center overflow-hidden rounded-[24px] transition-all duration-400 ease-out ${
-                    isActive
-                      ? 'w-[150px] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
-                      : 'w-[56px] px-2 text-[#a0a0a0] hover:text-[#5d201c]'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <div className="relative flex items-center transition-all duration-400 ease-out">
-                    <Icon size={27} className={isActive ? 'text-[#ff6961]' : 'text-current'} />
+        <nav className="flex flex-col items-start gap-0">
+          {navItems.map(({ to, label, icon: Icon }, index) => (
+            <NavLink
+              key={`${to}-${label}`}
+              to={to}
+              end={to === '/'}
+              className={({ isActive }) =>
+                `group relative flex h-[60px] items-center overflow-hidden  border transition-all duration-400 ease-out ${
+                  isActive
+                    ? index > 0 && index < navItems.length - 1
+                      ? activeIndex === 0
+                        ? 'w-[150px] rounded-[24px] rounded-tl-none rounded-bl-none rounded-tr-none rounded-br-none border-[#FFFFFF] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                        : activeIndex === navItems.length - 1
+                          ? 'w-[150px] rounded-[24px] rounded-tl-none rounded-bl-none rounded-tr-none border-[#FFFFFF] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                          : 'w-[150px] rounded-[24px] border-[#FFFFFF] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                      : index === 0
+                        ? 'w-[150px] rounded-[24px] rounded-bl-none border-[#FFFFFF] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                        : 'w-[150px] rounded-[24px] rounded-tl-none border-[#FFFFFF] bg-[#ffefe9] px-4 text-[#ff6961] shadow-[0_8px_20px_rgba(255,105,97,0.18)]'
+                    : index > 0 && index < navItems.length - 1
+                      ? activeIndex === 0
+                        ? 'w-[56px] rounded-[15px] rounded-tl-none rounded-bl-none rounded-tr-none rounded-br-none border-transparent bg-white/90 px-2 text-[#a0a0a0] shadow-none backdrop-blur-sm hover:bg-[#fff8f6] hover:text-[#5d201c] '
+                        : activeIndex === navItems.length - 1
+                          ? 'w-[56px] rounded-[15px] rounded-tl-none rounded-bl-none rounded-tr-none border-transparent bg-white/90 px-2 text-[#a0a0a0] shadow-none backdrop-blur-sm hover:bg-[#fff8f6] hover:text-[#5d201c] '
+                          : 'w-[56px] rounded-[15px] rounded-tl-none rounded-bl-none border-transparent bg-white/90 px-2 text-[#a0a0a0] shadow-none backdrop-blur-sm hover:bg-[#fff8f6] hover:text-[#5d201c] '
+                      : index === 0
+                        ? 'w-[56px] rounded-[15px] rounded-bl-none rounded-br-none border-[#FFFFFF] bg-white/90 px-2 text-[#a0a0a0] shadow-[0_8px_18px_rgba(93,32,28,0.08)] backdrop-blur-sm hover:border-[#ffc7c2] hover:bg-[#fff8f6] hover:text-[#5d201c]'
+                        : activeIndex === 0
+                          ? 'w-[56px] rounded-[15px] rounded-tl-none rounded-tr-none border-[#FFFFFF] bg-white/90 px-2 text-[#a0a0a0] shadow-[0_8px_18px_rgba(93,32,28,0.08)] backdrop-blur-sm hover:border-[#ffc7c2] hover:bg-[#fff8f6] hover:text-[#5d201c]'
+                          : 'w-[56px] rounded-[15px] rounded-tl-none border-[#FFFFFF] bg-white/90 px-2 text-[#a0a0a0] shadow-[0_8px_18px_rgba(93,32,28,0.08)] backdrop-blur-sm hover:border-[#ffc7c2] hover:bg-[#fff8f6] hover:text-[#5d201c]'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <div className="relative flex items-center transition-all duration-400 ease-out">
+                  <Icon size={27} className={isActive ? 'text-[#ff6961]' : 'text-current'} />
 
-                    <span
-                      className={`inline-block overflow-hidden whitespace-nowrap text-[15px] font-semibold transition-all duration-400 ease-out ${
-                        isActive
-                          ? 'ml-3 max-w-[90px] opacity-100 text-[#ff6961]'
-                          : 'ml-0 max-w-[0px] opacity-0 text-transparent'
-                      }`}
-                    >
-                      {label}
-                    </span>
-                  </div>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+                  <span
+                    className={`inline-block overflow-hidden whitespace-nowrap text-[15px] font-semibold transition-all duration-400 ease-out ${
+                      isActive
+                        ? 'ml-3 max-w-[90px] opacity-100 text-[#ff6961]'
+                        : 'ml-0 max-w-[0px] opacity-0 text-transparent'
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </div>
+              )}
+            </NavLink>
+          ))}
+        </nav>
       </div>
 
       <button
