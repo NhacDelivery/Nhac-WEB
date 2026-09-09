@@ -4,6 +4,9 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import loadingAnimation from '../assets/loading_nhac.json';
 import { fetchProdutos, Produto } from '../services/api';
 import AddressPicker from '../components/AddressPicker';
+import { useFlyToCart } from '../components/FlyToCartProvider';
+import { useAppNotification } from '../components/NotificationProvider';
+import { useCart } from '../components/CartProvider';
 
 // Material Design Icons
 import { MdLocationOn, MdSearch, MdTune, MdAdd, MdClose, MdErrorOutline, MdLogin, MdChevronLeft, MdChevronRight, MdMyLocation } from 'react-icons/md';
@@ -38,6 +41,9 @@ export default function Products() {
   const [addressPickerOpen, setAddressPickerOpen] = useState<boolean>(false);
   const bannerInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const navigate = useNavigate();
+  const { fly } = useFlyToCart();
+  const { showNotification } = useAppNotification();
+  const { addItem } = useCart();
   const apiKey =
     import.meta.env.VITE_GOOGLE_PLACES_API_KEY ||
     import.meta.env.GOOGLE_PLACES_API_KEY ||
@@ -160,7 +166,7 @@ export default function Products() {
           </p>
           <button
             onClick={() => navigate('/login')}
-            className="bg-primary text-white font-bold py-4 px-10 rounded-full hover:bg-[#e5564f] transition-colors inline-flex items-center gap-2"
+            className="bg-primary text-[color:var(--color-texto-claro)] font-bold py-4 px-10 rounded-full hover:opacity-90 transition-opacity inline-flex items-center gap-2"
           >
             <MdLogin size={24} /> Fazer Login
           </button>
@@ -259,7 +265,7 @@ export default function Products() {
             disabled={loading}
             className={`px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all whitespace-nowrap ${
               activeCategory === cat
-                ? 'bg-primary text-white shadow-sm'
+                ? 'bg-primary text-[color:var(--color-texto-claro)] shadow-sm'
                 : 'bg-white text-marrom hover:bg-secondary/50 border border-secondary'
             } disabled:opacity-50`}
           >
@@ -319,7 +325,20 @@ export default function Products() {
                   <div className="font-bold text-[18px] text-marrom">
                     R$ {(product.preco || 0).toFixed(2).replace('.', ',')}
                   </div>
-                  <button className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-[#e5564f] transition-colors shadow-sm">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      addItem(product);
+                      fly(rect, product.imagemUrl || '');
+                      showNotification({
+                        type: 'success',
+                        message: `${product.nome} adicionado ao carrinho!`,
+                        imageUrl: product.imagemUrl,
+                      });
+                    }}
+                    className="w-10 h-10 bg-primary text-[color:var(--color-texto-claro)] rounded-full flex items-center justify-center hover:opacity-90 transition-opacity shadow-sm"
+                  >
                     <MdAdd size={24} />
                   </button>
                 </div>
@@ -355,7 +374,7 @@ export default function Products() {
               <p className="text-cinza mb-8">{error}</p>
               <button
                 onClick={loadProducts}
-                className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-[#e5564f] transition-colors w-full"
+                className="bg-primary text-[color:var(--color-texto-claro)] font-bold py-3 px-8 rounded-full hover:opacity-90 transition-opacity w-full"
               >
                 Tentar Novamente
               </button>

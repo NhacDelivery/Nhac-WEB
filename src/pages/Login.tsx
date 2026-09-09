@@ -81,7 +81,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-[#e5564f] disabled:opacity-50 text-white py-4 rounded-full text-[18px] font-semibold flex items-center justify-center transition-colors mt-8 shadow-sm h-[60px]"
+            className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-[color:var(--color-texto-claro)] py-4 rounded-full text-[18px] font-semibold flex items-center justify-center transition-opacity mt-8 shadow-sm h-[60px]"
           >
             {loading ? (
                <div className="w-16 h-16">

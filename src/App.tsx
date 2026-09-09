@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
+import { FlyToCartProvider, useFlyToCart } from './components/FlyToCartProvider';
+import { NotificationProvider } from './components/NotificationProvider';
 import { useEffect, useState } from 'react';
 import {
   MdOutlineHome,
@@ -10,7 +12,9 @@ import {
 import HomePage from './pages/Home';
 import Login from './pages/Login';
 import Products from './pages/Products';
+import Cart from './pages/Cart';
 import { logout } from './services/api';
+import { CartProvider } from './components/CartProvider';
 
 function TopNavigation() {
   const navigate = useNavigate();
@@ -83,8 +87,8 @@ function FloatingBottomNavigation() {
   }, []);
 
   const navItems = [
-    { to: '/', label: 'Home', icon: MdOutlineHome },
-    { to: '/produtos', label: 'Cardápio', icon: MdOutlineShoppingBag },
+    { to: '/', label: 'Cardápio', icon: MdOutlineHome },
+    { to: '/carrinho', label: 'Carrinho', icon: MdOutlineShoppingBag },
     { to: '/login', label: 'Perfil', icon: MdPersonOutline },
   ];
 
@@ -92,6 +96,7 @@ function FloatingBottomNavigation() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const { cartIconRef } = useFlyToCart();
   const isCollapsed = scrollY > 150;
   const activeIndex = navItems.findIndex(({ to }) => to === location.pathname);
 
@@ -131,7 +136,7 @@ function FloatingBottomNavigation() {
               }
             >
               {({ isActive }) => (
-                <div className="relative flex items-center transition-all duration-400 ease-out">
+                <div className="relative flex items-center transition-all duration-400 ease-out" ref={to === '/carrinho' ? (cartIconRef as React.RefObject<HTMLDivElement>) : undefined}>
                   <Icon size={27} className={isActive ? 'text-[#ff6961]' : 'text-current'} />
 
                   <span
@@ -152,7 +157,7 @@ function FloatingBottomNavigation() {
 
       <button
         onClick={handleScrollTop}
-        className={`fixed bottom-[118px] right-6 z-50 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#ff6961] text-white shadow-[0_10px_24px_rgba(255,105,97,0.32)] transition-all duration-300 ease-out ${
+        className={`fixed bottom-[118px] right-6 z-50 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-primary text-[color:var(--color-texto-claro)] shadow-[0_10px_24px_rgba(254,100,92,0.32)] transition-all duration-300 ease-out ${
           isCollapsed ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
         }`}
       >
@@ -162,21 +167,39 @@ function FloatingBottomNavigation() {
   );
 }
 
+import { AnimatePresence } from 'framer-motion';
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="popLayout">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Products />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/produtos" element={<Products />} />
+        <Route path="/carrinho" element={<Cart />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-fundo text-marrom">
-        <TopNavigation />
-        <FloatingBottomNavigation />
-        <main className="mx-auto max-w-7xl px-6 pb-28 pt-6">
-          <Routes>
-            <Route path="/" element={<Products />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/produtos" element={<Products />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <CartProvider>
+      <NotificationProvider>
+        <FlyToCartProvider>
+          <Router>
+            <div className="min-h-screen bg-fundo text-marrom overflow-x-hidden">
+              <TopNavigation />
+              <FloatingBottomNavigation />
+              <main className="mx-auto max-w-7xl px-6 pb-28 pt-6">
+                <AnimatedRoutes />
+              </main>
+            </div>
+          </Router>
+        </FlyToCartProvider>
+      </NotificationProvider>
+    </CartProvider>
   );
 }
