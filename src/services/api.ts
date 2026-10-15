@@ -15,7 +15,7 @@ export interface AuthResponse {
   nome: string;
 }
 
-const API_BASE_URL = 'https://backend-nhac.onrender.com/api/v1';
+const API_BASE_URL = 'https://backend-nhac.cloud.run/api/v1';
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('token');
