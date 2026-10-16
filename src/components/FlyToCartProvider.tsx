@@ -61,26 +61,17 @@ const FlyingWidget: React.FC<{ item: FlyingItem; cartIconRef: React.RefObject<HT
 
   if (!cartRect) return null;
 
-  // We use CSS keyframes for the animation
-  // To make it dynamic, we'll set CSS variables for the start and end positions
   const startX = item.origin.left + item.origin.width / 2;
   const startY = item.origin.top + item.origin.height / 2;
   const endX = cartRect.left + cartRect.width / 2;
   const endY = cartRect.top + cartRect.height / 2;
 
-  // For a parabolic arc, we'll use cubic-bezier and split X and Y animations
-  // But an easier way with React is a quick inline animation if we attach it to a stylesheet
-  // Wait, inline styles with animation is tricky with dynamic keyframes.
-  // We can use Web Animations API.
 
   const elRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!elRef.current) return;
 
-    // Flutter anim: duration 550ms.
-    // X interpolation: linear with easeInOutCubic equivalent (we can just use an ease function)
-    // Y interpolation: linear + parabolic arc.
 
     const el = elRef.current;
     
@@ -88,8 +79,6 @@ const FlyingWidget: React.FC<{ item: FlyingItem; cartIconRef: React.RefObject<HT
     const startSize = Math.min(item.origin.width, 50);
     const endSize = 15; // scales down to 0.3 of 50 = 15
     
-    // We can simulate the parabola by animating a parent on X and child on Y,
-    // or using multiple keyframes.
     const frames = 20;
     const keyframes = [];
 
