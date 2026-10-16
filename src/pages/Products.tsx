@@ -152,7 +152,6 @@ export default function Products() {
     }, 5000);
   };
 
-  // ─── UNAUTHORIZED ───
   if (error === 'UNAUTHORIZED') {
     return (
       <div className="max-w-7xl mx-auto px-8 py-16">
